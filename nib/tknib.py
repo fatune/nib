@@ -1,13 +1,12 @@
 from Tkinter import Tk, Canvas
 
-import coords
-
+import coords 
 
 class TkNib(Tk):
 
     projections = ["merc", "xy"]
     sites = []
-    radius = 2
+    radius = 4
 
     def __init__(self, options, projection="merc", *args, **kwargs):
 
@@ -38,20 +37,23 @@ class TkNib(Tk):
         self.canvas = Canvas(self)
         self.canvas.place(in_=self, anchor="c", relx=.5, rely=.5)
         self.canvas.bind('<ButtonPress-1>', self.__onCanvasClick)
+        self.canvas.tag_bind("selectable", '<B1-Motion>', self.__obj_select)
 
         self.xscale = 1.0
         self.yscale = 1.0
 
         self.__resize(None)
 
+    def __obj_select(self, event):
+        x, y = event.x, event.y
+        r = self.radius
+        x0, y0 ,x1, y1 = x-r,y-r,x+r,y+r
+        widget = self.canvas.find_closest(event.x, event.y)
+        self.canvas.coords(widget, x0, y0, x1, y1) 
+
     def __onCanvasClick(self, event):
-        print event.x, event.y
-
         [[x, y]] = self.__unscale_coords([[event.x, event.y]])
-        print x,y 
         [[lat, lng]] = self.unproj([[x, y]])
-        print lat,lng
-
 
     def __resize(self, event):
         # resize canvas 
@@ -95,7 +97,8 @@ class TkNib(Tk):
                                     outline=outline, 
                                     fill=fill, 
                                     width=width, 
-                                    tags="sites%i-%s" % (idx1, idx2))
+                                    tags=("sites%i-%s" % (idx1, idx2),
+                                          "selectable"))
 
     def add_polylines(self, polylines, fill="blue", width=1):
         polylines = [ self.proj(polyline) for polyline in polylines ]
@@ -112,10 +115,10 @@ class TkNib(Tk):
         polygons = [ self.__scale_coords(polygon) for polygon in polygons]
         for polygon in polygons:
             points = [ item for innerlist in polygon for item in innerlist ]
-            self.canvas.create_polygon(points, 
-                                       outline=outline, 
-                                       fill=fill, 
-                                       width=width, 
+            self.canvas.create_polygon(points,
+                                       outline=outline,
+                                       fill=fill,
+                                       width=width,
                                        tags="lines")
 
     def __scale_coords(self, points):
