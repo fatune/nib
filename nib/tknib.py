@@ -16,6 +16,7 @@ class TkNib(Tk):
 
         if projection == "merc":
             self.proj = coords.latlong2merc
+            self.unproj = coords.merc2latlong
         if projection == "xy":
             self.proj = coords.xy2xy
 
@@ -36,11 +37,21 @@ class TkNib(Tk):
         self.bind("<Configure>", self.__resize)
         self.canvas = Canvas(self)
         self.canvas.place(in_=self, anchor="c", relx=.5, rely=.5)
+        self.canvas.bind('<ButtonPress-1>', self.__onCanvasClick)
 
         self.xscale = 1.0
         self.yscale = 1.0
 
         self.__resize(None)
+
+    def __onCanvasClick(self, event):
+        print event.x, event.y
+
+        [[x, y]] = self.__unscale_coords([[event.x, event.y]])
+        print x,y 
+        [[lat, lng]] = self.unproj([[x, y]])
+        print lat,lng
+
 
     def __resize(self, event):
         # resize canvas 
@@ -114,4 +125,13 @@ class TkNib(Tk):
         canvas_height = self.canvas.winfo_height()
         xscale = canvas_width / delta_x
         yscale = canvas_height / delta_y
-        return [ [(x - x0)*xscale, 1-(y - y0)*yscale] for x, y in points ]
+        return [ [(x - x0)*xscale, canvas_height-(y - y0)*yscale] for x, y in points ]
+    def __unscale_coords(self, points):
+        x0, x1, y0, y1 = self.map_region
+        delta_x, delta_y = self.map_delta
+        canvas_width = self.canvas.winfo_width()
+        canvas_height = self.canvas.winfo_height()
+        xscale = canvas_width / delta_x
+        yscale = canvas_height / delta_y
+        return [ [x/xscale+x0, (canvas_height-y)/yscale+y0] for x, y in points ]
+
