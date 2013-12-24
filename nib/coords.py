@@ -1,4 +1,4 @@
-from numpy import log, tan, pi, array, radians, degrees
+from numpy import log, tan, pi, array, radians, degrees, arctan, exp
 
 
 def latlong2merc(points):
@@ -9,8 +9,13 @@ def latlong2merc(points):
     stackoverflow.com/questions/14329691/covert-latitude-longitude-point-to-a-pixels-x-y-on-mercator-projection
 
     """
-    points = array(points)
+    points = array(points,dtype=float)
     points[:, 1] = degrees(log(tan(radians(points[:, 1] / 2) + pi / 4)))
+    return points.tolist()
+
+def merc2latlong(points):
+    points = array(points)
+    points[:, 1] = degrees( 2 * arctan(exp(radians(points[:, 1]))) - pi / 2 )
     return points.tolist()
 
 def xy2xy(points):
