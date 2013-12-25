@@ -10,6 +10,7 @@ class TkNib(Tk):
     __editable_canvas_sites = []
     radius = 2
     editable_radius = 4
+    __selcted = None
 
     def __init__(self, options, projection="merc", *args, **kwargs):
 
@@ -55,8 +56,9 @@ class TkNib(Tk):
         self.canvas.coords(widget, x0, y0, x1, y1) 
 
     def __onCanvasClick(self, event):
-        [[x, y]] = self.__unscale_coords([[event.x, event.y]])
-        [[lat, lng]] = self.unproj([[x, y]])
+        self.__selcted = self.canvas.find_closest(event.x, event.y)
+        #[[x, y]] = self.__unscale_coords([[event.x, event.y]])
+        #[[lat, lng]] = self.unproj([[x, y]])
 
     def __resize(self, event):
         # resize canvas 
@@ -108,8 +110,7 @@ class TkNib(Tk):
                                     outline=outline, 
                                     fill=fill, 
                                     width=width, 
-                                    tags=("sites%i-%s" % (idx1, idx2),
-                                          "selectable"))
+                                    tags=("sites%i-%s" % (idx1, idx2)))
 
     def add_polylines(self, polylines, fill="blue", width=1):
         polylines = [ self.proj(polyline) for polyline in polylines ]
@@ -145,7 +146,8 @@ class TkNib(Tk):
         for points in sites:
             self.__editable_canvas_sites.append( self.canvas.create_oval(points,
                                                                          outline="red", 
-                                                                         fill="green"))
+                                                                         fill="green",
+                                                                         tags="selectable"))
 
     def __scale_coords(self, points):
         x0, x1, y0, y1 = self.map_region
