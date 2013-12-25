@@ -4,4 +4,4 @@ import sys
 import nib
 
 
-nib.main()
+sys.exit(nib.main())
