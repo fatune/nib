@@ -2,12 +2,12 @@ import sys
 
 from nib_optionparser import NibOptionParser
 from tknib import TkNib
-from load_data import load_data, load_sites
+from load_data import load_data, load_sites, load_sites2edit
 
 
 def main():
     optparser = NibOptionParser()
-    options, polylines, polygons, sites, args = optparser.parse(sys.argv[1:])
+    options, polylines, polygons, sites, edit_sites, args = optparser.parse(sys.argv[1:])
 
     master = TkNib(options)
 
@@ -25,6 +25,11 @@ def main():
         for site in sites:
             sites = load_sites(site)
             master.add_sites(sites)
+
+    if edit_sites:
+        sites2edit = load_sites2edit(edit_sites)
+        sites2edit.parse(["float", "float"])
+        master.add_sites2edit(sites2edit)
 
     master.mainloop()
 

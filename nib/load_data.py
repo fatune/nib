@@ -21,3 +21,9 @@ def prepare_data(lines):
                            for string in line ] 
                            for line in lines if len(line)>1 ]
     return lines
+
+def load_sites2edit(file_name):
+    from gentle_parse import GentleParse
+    lines = [ line.rstrip() for line in open(file_name) ]
+    sites = GentleParse(lines)
+    return sites

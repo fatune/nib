@@ -12,6 +12,8 @@ class NibOptionParser():
                              help = 'comma separeted string of filenames of polylines to plot')
         self.parser.add_option('-s', '--sites', dest='sites',
                              help = 'comma separeted string of filenames of sites to plot')
+        self.parser.add_option('--edit-sites', dest='edit_sites',
+                               help = 'edit a file containing sites')
 
 
     def parse(self, argv):
@@ -52,10 +54,10 @@ class NibOptionParser():
                 print "Error: Wrong sites option"
                 sys.exit()
 
-        return my_options, polylines, polygons, sites, args
+        edit_sites = None
+        if options.edit_sites:
+            edit_sites = options.edit_sites
 
 
-
-
-
+        return my_options, polylines, polygons, sites, edit_sites, args
 

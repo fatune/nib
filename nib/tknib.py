@@ -6,7 +6,10 @@ class TkNib(Tk):
 
     projections = ["merc", "xy"]
     sites = []
-    radius = 4
+    __editable_sites = []
+    __editable_canvas_sites = []
+    radius = 2
+    editable_radius = 4
 
     def __init__(self, options, projection="merc", *args, **kwargs):
 
@@ -81,8 +84,16 @@ class TkNib(Tk):
             for idx2, (x0, y0, x1, y1) in enumerate(site):
                 self.canvas.coords("sites%i-%i" %(i + 1, idx2), x0, y0, x1, y1) 
 
-        self.xscale = canvas_width * 1.0
-        self.yscale = canvas_height * 1.0
+        # rescale editable sites
+        radius = self.editable_radius
+        for i, canvas_site in enumerate(self.__editable_canvas_sites):
+            x, y = self.__editable_sites[i]
+            self.__editable_sites[i] = [x * xscale, y * yscale] 
+            x0, y0, x1, y1 = x - radius, y - radius, x + radius, y + radius 
+            self.canvas.coords(canvas_site, x0, y0, x1, y1)
+
+        self.xscale = canvas_width * 1.
+        self.yscale = canvas_height * 1.
 
     def add_sites(self, sites, outline="red", fill="white", width=1):
         r = self.radius
@@ -120,6 +131,21 @@ class TkNib(Tk):
                                        fill=fill,
                                        width=width,
                                        tags="lines")
+
+    def add_sites2edit(self, sites):
+        r = self.editable_radius
+        sites_lst = self.proj(sites.aslist())
+        for i, [x, y] in enumerate(sites_lst):
+            sites[i][0] = x
+            sites[i][1] = y
+        sites = self.__scale_coords(sites)
+        self.__editable_sites = sites
+
+        sites = [ [x-r, y-r, x+r, y+r] for x, y in sites]
+        for points in sites:
+            self.__editable_canvas_sites.append( self.canvas.create_oval(points,
+                                                                         outline="red", 
+                                                                         fill="green"))
 
     def __scale_coords(self, points):
         x0, x1, y0, y1 = self.map_region
