@@ -42,18 +42,34 @@ class TkNib(Tk):
         self.canvas.place(in_=self, anchor="c", relx=.5, rely=.5)
         self.canvas.bind('<ButtonPress-1>', self.__onCanvasClick)
         self.canvas.tag_bind("selectable", '<B1-Motion>', self.__obj_select)
+        self.bind('<Key>', self.__key_pressed)
 
         self.xscale = 1.0
         self.yscale = 1.0
 
         self.__resize(None)
 
+    def __key_pressed(self, event):
+        #print "presse", event.char
+        for i, [x, y] in enumerate(self.__editable_sites_lst):
+            [[x, y]] = self.__unscale_coords([[x, y]])
+            [[lat, lng]] = self.unproj([[x, y]])
+            self.__editable_sites[i][0] = lat
+            self.__editable_sites[i][1] = lng
+        print self.__editable_sites.unparse()
+        #if event.char == 'p':
+        #    print self.__editable_sites.unparse()
+
+
     def __obj_select(self, event):
         x, y = event.x, event.y
-        r = self.radius
+        r = self.editable_radius
         x0, y0 ,x1, y1 = x-r,y-r,x+r,y+r
-        widget = self.canvas.find_closest(event.x, event.y)
-        self.canvas.coords(widget, x0, y0, x1, y1) 
+        self.canvas.coords(self.__selcted, x0, y0, x1, y1) 
+        for tag in self.canvas.gettags(self.__selcted):
+            if tag.startswith("id-"): 
+                id_ = int(tag[3:])
+                self.__editable_sites_lst[id_] = [x, y]
 
     def __onCanvasClick(self, event):
         self.__selcted = self.canvas.find_closest(event.x, event.y)
@@ -89,8 +105,8 @@ class TkNib(Tk):
         # rescale editable sites
         radius = self.editable_radius
         for i, canvas_site in enumerate(self.__editable_canvas_sites):
-            x, y = self.__editable_sites[i]
-            self.__editable_sites[i] = [x * xscale, y * yscale] 
+            x, y = self.__editable_sites_lst[i]
+            self.__editable_sites_lst[i] = [x * xscale, y * yscale] 
             x0, y0, x1, y1 = x - radius, y - radius, x + radius, y + radius 
             self.canvas.coords(canvas_site, x0, y0, x1, y1)
 
@@ -134,20 +150,19 @@ class TkNib(Tk):
                                        tags="lines")
 
     def add_sites2edit(self, sites):
-        r = self.editable_radius
-        sites_lst = self.proj(sites.aslist())
-        for i, [x, y] in enumerate(sites_lst):
-            sites[i][0] = x
-            sites[i][1] = y
-        sites = self.__scale_coords(sites)
         self.__editable_sites = sites
+        sites_lst = self.proj(sites.aslist())
+        sites_lst = self.__scale_coords(sites_lst)
+        self.__editable_sites_lst = sites_lst
 
-        sites = [ [x-r, y-r, x+r, y+r] for x, y in sites]
-        for points in sites:
+        r = self.editable_radius
+        sites_ = [ [x-r, y-r, x+r, y+r] for x, y in sites_lst]
+        for i, points in enumerate(sites_):
             self.__editable_canvas_sites.append( self.canvas.create_oval(points,
                                                                          outline="red", 
                                                                          fill="green",
-                                                                         tags="selectable"))
+                                                                         tags=("selectable",
+                                                                               "id-%i" % i)))
 
     def __scale_coords(self, points):
         x0, x1, y0, y1 = self.map_region
