@@ -1,3 +1,5 @@
+
+
 from model import Model, MapModel
 
 from tkGui.view import View
@@ -5,10 +7,11 @@ from tkGui.view_polygons import ViewPolygons
 from tkGui.view_polylines import ViewPolylines
 from tkGui.view_editable_sites import ViewEditableSites
 
+
 class Controller:
     MapRegion = [0,0,10,10]
     def __init__(self, root, options, projection="merc"):
-        self.options = options
+        self.options = options 
         self.model = Model(self.MapRegion)
         self.map_model = MapModel(projection, options)
 
@@ -31,7 +34,6 @@ class Controller:
         self.map_model.editable_sites_lst.addCallback(self.editable_sites_lst2editable_site)
         self.model.Sites.addCallback(self.editable_sites_lst2editable_site)
 
-
     def Click(self, event):
         x, y = event.x, event.y
 
@@ -46,7 +48,10 @@ class Controller:
         if event.keysym == "d":
             self.viewEditableSites.removeSite()
         if event.keysym == "p":
-            print self.editable_sites.unparse()
+            lines = "\n".join(self.sites2edit.unparse())
+            f = open("%s" % self.sites2edit_name, 'w')
+            f.writelines(lines)
+            f.close()
 
     def add_polylines(self, polylines):
         canvas_width, canvas_height = self.view.get_canvas_size()
@@ -62,7 +67,8 @@ class Controller:
                                                                for polygon in polygons ]
         self.model.add_polygons(polygons)
 
-    def add_sites2edit(self, sites):
+    def add_sites2edit(self, sites, name):
+        self.sites2edit_name = name
         self.sites2edit = sites
 
         canvas_width, canvas_height = self.view.get_canvas_size()
@@ -70,16 +76,13 @@ class Controller:
         sites_lst = self.map_model.scale_coords(sites_lst, canvas_width, canvas_height)
 
         self.map_model.add_editable_sites_lst(sites_lst)
-        #self.viewEditableSites.add_editable_sites(self.map_model.editable_sites_lst)
         for x, y in sites_lst:
-            #self.viewEditableSites.unselect()
             self.viewEditableSites.addSite()
             self.model.addSite(x, y)
 
     def editable_sites_lst2editable_site(self, SiteLst):
         canvas_width, canvas_height = self.view.get_canvas_size()
         for i, (x, y) in enumerate(SiteLst):
-            # unproj item
             [[x, y]] = self.map_model.unscale_coords([[x, y]], canvas_width, canvas_height)
             [[x, y]] = self.map_model.doUnproj([[x,y]])
             try:
@@ -87,4 +90,3 @@ class Controller:
                 self.sites2edit[i][1] = y
             except IndexError:
                 self.sites2edit.append([x, y])
-        print self.sites2edit.unparse()

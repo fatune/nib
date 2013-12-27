@@ -34,7 +34,7 @@ def main():
     if edit_sites:
         sites2edit = load_sites2edit(edit_sites)
         sites2edit.parse(["float", "float"])
-        app.add_sites2edit(sites2edit)
+        app.add_sites2edit(sites2edit, edit_sites)
 
     root.mainloop()
 
