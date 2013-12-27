@@ -82,6 +82,9 @@ class Controller:
             # unproj item
             [[x, y]] = self.map_model.unscale_coords([[x, y]], canvas_width, canvas_height)
             [[x, y]] = self.map_model.doUnproj([[x,y]])
-            self.sites2edit[i][0] = x
-            self.sites2edit[i][1] = y
+            try:
+                self.sites2edit[i][0] = x
+                self.sites2edit[i][1] = y
+            except IndexError:
+                self.sites2edit.append([x, y])
         print self.sites2edit.unparse()

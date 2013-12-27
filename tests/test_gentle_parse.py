@@ -37,9 +37,12 @@ class Test(unittest.TestCase):
                    "150.0 70.0 0 1 2 BC Text ugly terminate string"]
         self.assertEqual(lbls.unparse(), strings3)
 
-        lbls.append(5)
+        self.assertEqual(len(lbls),3)
+        lbls.append([5])
         self.assertEqual(len(lbls),4)
-        self.assertEqual(lbls[-1],5)
+        self.assertEqual(lbls[-1],[5])
+
+        print lbls.unparse()
 
 
 def main():

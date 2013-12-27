@@ -123,6 +123,9 @@ class GentleParse():
     # Mutable sequences only, provide the Python list methods.
     def append(self,item):
         self.__data.append(item)
+        self.__terminates.append([])
+        idxs = self.__comments_line_idx + self.__data_line_idx
+        self.__data_line_idx.append(idxs[-1]+1)
 
     def count(self):
         pass
