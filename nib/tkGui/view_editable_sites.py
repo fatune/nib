@@ -59,8 +59,8 @@ class ViewEditableSites:
         canvas_site = self.canvas.create_oval([0,0,1,1],fill=fill, tags = ("site_"))
         self.canvas_sites.append(canvas_site)
 
-    def addEditableSites(self, site_lst):
-        self.canvas_sites = site_lst
+    #def add_editable_sites(self, site_lst):
+    #    self.canvas_sites = site_lst
 
 
     def showSites(self, sites):

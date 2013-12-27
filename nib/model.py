@@ -61,6 +61,10 @@ class MapModel:
 
         self.editable_sites_lst = Observable(None)
 
+    def add_editable_sites_lst(self, site):
+        self.editable_sites_lst.set(site)
+
+
     def scale_coords(self, points, canvas_width, canvas_height):
         x0, x1, y0, y1 = self.map_region_proj
         delta_x, delta_y = self.map_delta

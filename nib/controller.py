@@ -28,7 +28,8 @@ class Controller:
         self.model.CanvasScale.addCallback(self.viewPolygons.scale)
         self.model.Polygons.addCallback(self.viewPolygons.showPolygons)
 
-        self.map_model.editable_sites_lst.addCallback(self.SiteLst2EditableSite)
+        self.map_model.editable_sites_lst.addCallback(self.editable_sites_lst2editable_site)
+        self.model.Sites.addCallback(self.editable_sites_lst2editable_site)
 
 
     def Click(self, event):
@@ -62,20 +63,25 @@ class Controller:
         self.model.add_polygons(polygons)
 
     def add_sites2edit(self, sites):
+        self.sites2edit = sites
+
         canvas_width, canvas_height = self.view.get_canvas_size()
-        self.editable_sites = sites
         sites_lst = self.map_model.doProj(sites.aslist())
         sites_lst = self.map_model.scale_coords(sites_lst, canvas_width, canvas_height)
-        print sites_lst
-        #self.viewEditableSites.addEditableSites(sites_lst)
-        print sites_lst
+
+        self.map_model.add_editable_sites_lst(sites_lst)
+        #self.viewEditableSites.add_editable_sites(self.map_model.editable_sites_lst)
         for x, y in sites_lst:
             #self.viewEditableSites.unselect()
             self.viewEditableSites.addSite()
             self.model.addSite(x, y)
 
-    def SiteLst2EditableSite(self, SiteLst):
-        print "ss"
-        for i, item in enumerate(SiteLst):
+    def editable_sites_lst2editable_site(self, SiteLst):
+        canvas_width, canvas_height = self.view.get_canvas_size()
+        for i, (x, y) in enumerate(SiteLst):
             # unproj item
-            self.editable_sites[i] = item
+            [[x, y]] = self.map_model.unscale_coords([[x, y]], canvas_width, canvas_height)
+            [[x, y]] = self.map_model.doUnproj([[x,y]])
+            self.sites2edit[i][0] = x
+            self.sites2edit[i][1] = y
+        print self.sites2edit.unparse()

@@ -27,8 +27,10 @@ class TkNib(Tk):
         map_x1 = options['y1']
         map_y0 = options['x0']
         map_y1 = options['x1']
+        print map_x0, map_x1,map_y0, map_y1
         [[map_x0, map_y0], [map_x1, map_y1]] = self.proj([[map_x0, map_y0],
                                                           [map_x1, map_y1]])
+        print map_x0, map_x1,map_y0, map_y1
         delta_x = map_x1 - map_x0
         delta_y = map_y1 - map_y0
         ratio = delta_x / delta_y
