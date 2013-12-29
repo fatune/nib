@@ -122,10 +122,18 @@ class GentleParse():
  
     # Mutable sequences only, provide the Python list methods.
     def append(self,item):
+        idx = len(self.__data)
         self.__data.append(item)
         self.__terminates.append([])
         idxs = self.__comments_line_idx + self.__data_line_idx
         self.__data_line_idx.append(idxs[-1]+1)
+        for i in idxs:
+            if not i>idx:
+                continue
+            if i in self.__comments_line_idx:
+                comment_idx = self.__comments_line_idx.index(i)
+                self.__comments_line_idx[comment_idx] += 1
+
 
     def count(self):
         pass
@@ -137,8 +145,26 @@ class GentleParse():
         pass
     def pop(self):
         pass
-    def remove(self,item):
-        pass
+    def remove(self,index):
+        if not (index < len(self.__data)):
+            raise IndexError
+
+        data = self.__data.pop(index)
+        self.__terminates.pop(index)
+        self.__data_line_idx.pop(index)
+
+        idxs = self.__comments_line_idx + self.__data_line_idx
+        idxs.sort()
+        for i in idxs:
+            if not i>index:
+                continue
+            if i in self.__comments_line_idx:
+                comment_idx = self.__comments_line_idx.index(i)
+                self.__comments_line_idx[comment_idx] -= 1
+            else:
+                data_idx = self.__data_line_idx.index(i)
+                self.__data_line_idx[data_idx] -= 1
+
     def reverse(self):
         pass
     def sort(self):
