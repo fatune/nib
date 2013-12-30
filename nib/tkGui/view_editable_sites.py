@@ -45,7 +45,9 @@ class ViewEditableSites:
 
         idx = self.canvas_sites.index(widget[0])
         sites = self.sites.get()
-        del sites[idx]
+        #del sites[idx]
+        print sites.unparse()
+
         self.sites.set(sites)
 
         self.canvas.delete(self.canvas_sites[-1])
