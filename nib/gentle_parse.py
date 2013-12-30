@@ -14,6 +14,8 @@ class GentleParse():
         for i, string in enumerate(self.__strings):
             string_ = string.split()
             line = []
+            if len(string_) == 0:
+                continue
             try:
                 for j, expr_type in enumerate(expr):
                     if expr_type == "float":
@@ -126,7 +128,11 @@ class GentleParse():
         self.__data.append(item)
         self.__terminates.append([])
         idxs = self.__comments_line_idx + self.__data_line_idx
-        self.__data_line_idx.append(idxs[-1]+1)
+        if not idx == 0:
+            self.__data_line_idx.append(idxs[-1]+1)
+        else:
+            self.__data_line_idx.append(1)
+            
         for i in idxs:
             if not i>idx:
                 continue

@@ -19,7 +19,8 @@ class Controller:
         self.view.canvas.bind('<ButtonPress-1>', self.Click)
         self.view.bind('<Key>', self.KeyPress)
 
-        self.viewEditableSites = ViewEditableSites(self.view.canvas, self.model.Sites)
+        self._editable_del_idx = [-1] # index of a site i delete. make as list couse it acts like a pointer in C
+        self.viewEditableSites = ViewEditableSites(self.view.canvas, self.model.Sites, self._editable_del_idx)
         self.model.CanvasScale.addCallback(self.viewEditableSites.scale)
         self.model.Sites.addCallback(self.viewEditableSites.showSites)
 
@@ -52,6 +53,8 @@ class Controller:
             f = open("%s" % self.sites2edit_name, 'w')
             f.writelines(lines)
             f.close()
+        if event.keysym == "l":
+            for l in self.sites2edit.unparse(): print l
 
     def add_polylines(self, polylines):
         canvas_width, canvas_height = self.view.get_canvas_size()
@@ -72,8 +75,11 @@ class Controller:
         self.sites2edit = sites
 
         canvas_width, canvas_height = self.view.get_canvas_size()
-        sites_lst = self.map_model.doProj(sites.aslist())
-        sites_lst = self.map_model.scale_coords(sites_lst, canvas_width, canvas_height)
+        if len(sites.aslist())>0:
+            sites_lst = self.map_model.doProj(sites.aslist())
+            sites_lst = self.map_model.scale_coords(sites_lst, canvas_width, canvas_height)
+        else:
+            sites_lst = []
 
         self.map_model.add_editable_sites_lst(sites_lst)
         for x, y in sites_lst:
@@ -82,6 +88,11 @@ class Controller:
 
     def editable_sites_lst2editable_site(self, SiteLst):
         canvas_width, canvas_height = self.view.get_canvas_size()
+
+        if not self._editable_del_idx[0] == -1:
+            self.sites2edit.remove(self._editable_del_idx[0])
+            self._editable_del_idx[0] = -1
+
         for i, (x, y) in enumerate(SiteLst):
             [[x, y]] = self.map_model.unscale_coords([[x, y]], canvas_width, canvas_height)
             [[x, y]] = self.map_model.doUnproj([[x,y]])

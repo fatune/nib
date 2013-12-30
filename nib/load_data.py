@@ -24,6 +24,9 @@ def prepare_data(lines):
 
 def load_sites2edit(file_name):
     from gentle_parse import GentleParse
-    lines = [ line.rstrip() for line in open(file_name) ]
+    try:
+        lines = [ line.rstrip() for line in open(file_name) ]
+    except IOError:
+        lines = []
     sites = GentleParse(lines)
     return sites

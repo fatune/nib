@@ -5,9 +5,10 @@ class ViewEditableSites:
                 "selected_fill" : "red"}
     canvas_sites = []
 
-    def __init__(self, canvas, sites):
+    def __init__(self, canvas, sites, editable_del_idx):
         self.sites = sites
         self.canvas = canvas
+        self._editable_del_flag = editable_del_idx
         self.canvas.tag_bind("site_", '<B1-Motion>', self.Move)
 
     def returnWidget(self, x, y):
@@ -44,10 +45,9 @@ class ViewEditableSites:
             return
 
         idx = self.canvas_sites.index(widget[0])
+        self._editable_del_flag[0] = idx
         sites = self.sites.get()
-        #del sites[idx]
-        print sites.unparse()
-
+        del sites[idx]
         self.sites.set(sites)
 
         self.canvas.delete(self.canvas_sites[-1])
